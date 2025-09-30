@@ -112,12 +112,14 @@ export default function Dashboard() {
 
         if (versionResponse.ok) {
           versionResult = await versionResponse.json();
-          const newVersionHash = generateVersionHash(versionResult);
-          hasVersionChanges = newVersionHash !== cachedVersionHashRef.current;
+          if (versionResult) {
+            const newVersionHash = generateVersionHash(versionResult);
+            hasVersionChanges = newVersionHash !== cachedVersionHashRef.current;
 
-          if (hasVersionChanges) {
-            cachedVersionHashRef.current = newVersionHash;
-            setRobloxVersions(versionResult);
+            if (hasVersionChanges) {
+              cachedVersionHashRef.current = newVersionHash;
+              setRobloxVersions(versionResult);
+            }
           }
         }
       } catch (versionError) {
