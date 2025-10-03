@@ -5,6 +5,9 @@ import React, { useState, useEffect, useRef } from 'react';
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [headerShapeClass, setHeaderShapeClass] = useState('rounded-full');
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
   const shapeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const toggleMenu = () => {
@@ -30,6 +33,32 @@ export default function Navbar() {
       }
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Detect if scrolled down
+      setIsScrolled(currentScrollY > 50);
+
+      // Show/hide navbar based on scroll direction
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down
+        setIsVisible(false);
+      } else {
+        // Scrolling up or at top
+        setIsVisible(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [lastScrollY]);
 
   const logoElement = (
     <div className="flex items-center gap-2">
@@ -74,11 +103,16 @@ export default function Navbar() {
   return (
     <header className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-20
                        flex flex-col items-center
-                       pl-6 pr-6 py-3 backdrop-blur-sm
+                       pl-6 pr-6 transition-all duration-300 ease-out
                        ${headerShapeClass}
-                       border border-[#333] bg-[#1f1f1f57]
+                       border ${isScrolled ? 'border-[#444]' : 'border-[#333]'}
+                       ${isScrolled ? 'bg-[rgba(20,20,20,0.95)]' : 'bg-[rgba(31,31,31,0.62)]'}
+                       ${isScrolled ? 'backdrop-blur-md' : 'backdrop-blur-sm'}
+                       ${isScrolled ? 'shadow-xl' : ''}
+                       ${isScrolled ? 'py-2' : 'py-3'}
+                       ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'}
                        w-[calc(100%-2rem)] sm:w-[750px]
-                       transition-[border-radius] duration-0 ease-in-out`}>
+                       transition-[border-radius,transform,opacity,background-color,backdrop-filter,padding,box-shadow] duration-300 ease-out`}>
 
       <div className="flex items-center justify-between w-full gap-x-6 sm:gap-x-8">
         <div className="flex items-center">
